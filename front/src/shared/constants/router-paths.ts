@@ -1,3 +1,4 @@
 export const PATHS = {
-  INDEX: "/"
+  INDEX: "/",
+  NGDU: "/ngdu/:id"
 };
