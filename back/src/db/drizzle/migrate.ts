@@ -12,7 +12,7 @@ const db_migrate = async () => {
     config.app.isProduction && config.app.isLocale
       ? path.join(__dirname, '../../../dist/db/drizzle/migrations')
       : path.join(__dirname, '../../../src/db/drizzle/migrations');
-
+  console.log(migrationsFolder, config.database.postgres.url);
   await migrate(drizzle(migrationClient), {
     migrationsFolder
   });
