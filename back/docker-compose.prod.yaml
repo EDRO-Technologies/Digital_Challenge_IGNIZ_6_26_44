@@ -44,7 +44,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_URL: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/${DATABASE_NAME}
-    command: sh -c "npm run migrate:prod && npm run start"
+    command: sh -c "npm run migrate:prod && npm run process:files:prod && npm run start"
     deploy:
       resources:
         limits:
