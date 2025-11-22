@@ -1,7 +1,6 @@
+import { useDebouncedValue } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-
-import { useDebouncedValue } from "@mantine/hooks";
 
 import { updateSearchParams } from "@/shared/utils";
 
@@ -11,7 +10,8 @@ interface IUseCdngSearchParams {
 
 export const useSearch = ({ name }: IUseCdngSearchParams) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchValue, setSearchValue] = useState("");
+  const initialValue = searchParams.get(name);
+  const [searchValue, setSearchValue] = useState(initialValue || "");
   const updateParams = updateSearchParams(searchParams, setSearchParams);
 
   const [debouncedSearchvalue] = useDebouncedValue(searchValue, 300);
