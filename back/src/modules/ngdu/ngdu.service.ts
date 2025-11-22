@@ -6,11 +6,13 @@ import { cdng, kust, mest, ngdu, obj, plast, well } from '@/db/drizzle/schema/ng
 import type { Links, Node } from './dto/ngdu.types';
 import type {
   GetGraphRequest,
+  PostIsConnectedRequest,
   PostObjectExistsRequest,
   PostObjectNameRequest
 } from './dto/request.dto';
 import type {
   GetGraphResponse,
+  PostIsConnectedResponse,
   PostObjectExistsResponse,
   PostObjectNameResponse
 } from './dto/response.dto';
@@ -143,31 +145,123 @@ export const searchAllTables = async (query: string): Promise<TSearchResult> => 
 export const objectExists = async (
   dto: PostObjectExistsRequest
 ): Promise<PostObjectExistsResponse> => {
-  const formattedTableName = dto.type.toLowerCase();
+  try {
+    const formattedTableName = sql.identifier(dto.type.toLowerCase());
 
-  const data = await db
-    .select()
-    .from(sql`${formattedTableName}`)
-    .where(sql`${formattedTableName}.id = ${dto.id}`);
-
-  return {
-    exists: data.length > 0
-  };
+    const data = await db.execute<{ name: string }>(sql`
+      SELECT * FROM ${formattedTableName}
+      WHERE id = ${dto.id}
+    `);
+    return {
+      exists: data.rowCount > 0
+    };
+  } catch (error) {
+    throw error;
+  }
 };
 
-// export const objectByName = async (dto: PostObjectNameRequest): Promise<PostObjectNameResponse> => {
-//   const formattedTableName = dto.type.toLowerCase();
+export const objectByName = async (dto: PostObjectNameRequest): Promise<PostObjectNameResponse> => {
+  try {
+    const formattedTableName = sql.identifier(dto.type.toLowerCase());
 
-//   const data = await db
-//     .select({ name: sql<string>`${formattedTableName}.name` })
-//     .from(sql`${formattedTableName}`)
-//     .where(sql`${formattedTableName}.id = ${dto.id}`);
+    const data = await db.execute<{ name: string }>(sql`
+      SELECT name FROM ${formattedTableName}
+      WHERE id = ${dto.id}
+    `);
 
-//   if (data.length === 0) {
-//     throw new Error(`Object with id ${dto.id} not found in ${formattedTableName}`);
-//   }
+    if (data.rowCount === 0) {
+      throw new Error(`Object with id ${dto.id} not found in ${formattedTableName}`);
+    }
 
-//   return {
-//     name: data[0].name
-//   };
-// };
+    return {
+      name: data.rows[0].name
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const isConnected = async (
+  dto: PostIsConnectedRequest
+): Promise<PostIsConnectedResponse> => {
+  try {
+    const normalize = (s: string) => s.toLowerCase() as TTarget;
+
+    const sourceType = normalize(dto.source.type);
+    const targetType = normalize(dto.target.type);
+
+    const tables = { ngdu, mest, cdng, obj, plast, kust, well } as const;
+
+    const edges: Record<TTarget, { table: any; fk: string; type: TTarget }[]> = {
+      ngdu: [
+        { table: mest, fk: 'ngduId', type: 'mest' },
+        { table: cdng, fk: 'ngduId', type: 'cdng' }
+      ],
+      mest: [
+        { table: ngdu, fk: 'id', type: 'ngdu' },
+        { table: obj, fk: 'mestId', type: 'obj' }
+      ],
+      cdng: [
+        { table: ngdu, fk: 'id', type: 'ngdu' },
+        { table: kust, fk: 'cdngId', type: 'kust' }
+      ],
+      obj: [
+        { table: mest, fk: 'id', type: 'mest' },
+        { table: plast, fk: 'objId', type: 'plast' }
+      ],
+      plast: [
+        { table: obj, fk: 'id', type: 'obj' },
+        { table: well, fk: 'plastId', type: 'well' }
+      ],
+      kust: [
+        { table: cdng, fk: 'id', type: 'cdng' },
+        { table: well, fk: 'kustId', type: 'well' }
+      ],
+      well: [
+        { table: kust, fk: 'id', type: 'kust' },
+        { table: plast, fk: 'id', type: 'plast' }
+      ]
+    };
+
+    const queue: { type: TTarget; id: number }[] = [{ type: sourceType, id: dto.source.id }];
+    const visited = new Set<string>();
+
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      const key = `${node.type}_${node.id}`;
+
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      if (node.type === targetType && node.id === dto.target.id) {
+        return { connected: true };
+      }
+
+      for (const edge of edges[node.type]) {
+        const childTable = edge.table;
+
+        if (edge.fk !== 'id') {
+          const rows = await db
+            .select({ id: childTable.id })
+            .from(childTable)
+            .where(eq(childTable[edge.fk], node.id));
+
+          for (const row of rows) {
+            queue.push({ type: edge.type, id: row.id });
+          }
+        } else {
+          const currentTable = tables[node.type] as any;
+          const [rec] = await db.select().from(currentTable).where(eq(currentTable.id, node.id));
+
+          if (rec && rec[`${edge.type}Id`]) {
+            queue.push({ type: edge.type, id: rec[`${edge.type}Id`] });
+          }
+        }
+      }
+    }
+
+    return { connected: false };
+  } catch (error) {
+    throw error;
+  }
+};
