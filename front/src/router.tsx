@@ -21,13 +21,10 @@ const NgduRoute = createRoute(PATHS.NGDU, <NgduScreen />, {
     const url = new URL(request.url);
     const searchTopology = url.searchParams.get("topology");
     const searchType = url.searchParams.get("type");
-
     if (!searchTopology || !searchType) {
       return redirect(PATHS.INDEX);
     }
-
     const id = Number(params.id);
-
     return useGraphStore.getState().fetchGraph({ topology: searchTopology, type: searchType, id });
   }
 });

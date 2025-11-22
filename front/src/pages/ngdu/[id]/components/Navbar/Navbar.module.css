@@ -1,0 +1,34 @@
+.select_input {
+  background-color: var(--mantine-primary-color-8);
+  color: white;
+  font-size: medium;
+  font-weight: 700;
+  padding: 20px 16px;
+  border-radius: 6px;
+}
+
+.section {
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-weight: 700;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-gray-6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.scrollArea {
+  padding: 4px 12px;
+}
+
+.navButton {
+  padding: 10px 12px;
+  height: auto;
+  font-weight: 500;
+  color: var(--mantine-color-gray-9);
+  border-radius: 6px;
+  justify-items: flex-start;
+}
