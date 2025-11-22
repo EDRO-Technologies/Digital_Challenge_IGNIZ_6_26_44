@@ -29,8 +29,8 @@ jobs:
       - name: Build and Push Client Image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./front/Dockerfile
+          context: ./front
+          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.CLIENT_REPOSITORY_NAME }}:latest
           build-args: |

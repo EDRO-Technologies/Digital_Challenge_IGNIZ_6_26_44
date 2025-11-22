@@ -41,8 +41,8 @@ jobs:
       - name: Build and Push Server Image
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: ./back/Dockerfile
+          context: ./back
+          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.SERVER_REPOSITORY_NAME }}:latest
           build-args: |
