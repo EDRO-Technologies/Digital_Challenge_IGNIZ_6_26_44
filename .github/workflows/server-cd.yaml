@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./back
-          file: Dockerfile
+          file: ./back/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.SERVER_REPOSITORY_NAME }}:latest
           build-args: |

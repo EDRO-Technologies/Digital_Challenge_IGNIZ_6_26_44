@@ -30,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./front
-          file: Dockerfile
+          file: ./front/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.CLIENT_REPOSITORY_NAME }}:latest
           build-args: |
