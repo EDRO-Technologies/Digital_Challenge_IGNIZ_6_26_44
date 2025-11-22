@@ -1,4 +1,4 @@
 export const SELECT_TOPOLOGY_MAP = {
   organizational: "Организационная",
-  geology: "Геологическая"
+  geological: "Геологическая"
 } as const;

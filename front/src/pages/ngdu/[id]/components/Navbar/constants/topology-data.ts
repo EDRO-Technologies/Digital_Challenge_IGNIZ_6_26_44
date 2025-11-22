@@ -6,7 +6,7 @@ export const SELECT_TOPOLOGY_DATA: ComboboxItem[] = [
     label: "Организационная"
   },
   {
-    value: "geology",
+    value: "geological",
     label: "Геологическая"
   }
 ];
