@@ -1,31 +1,30 @@
 import {
   Background,
+  ConnectionMode,
   Panel,
   ReactFlow,
-  ReactFlowProvider,
-  addEdge,
   useEdgesState,
   useNodesState,
   useReactFlow
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
-import React, { useCallback, useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect, useMemo } from "react";
 
-import { initialEdges, initialNodes } from "./initialElements.js";
+import { useGraphStore } from "@/shared/store/graph";
 
-const elk = new ELK();
+import { nodeTypes } from "./nodeTypes";
 
-// Elk has a *huge* amount of options to configure. To see everything you can
-// tweak check out:
-//
-// - https://www.eclipse.org/elk/reference/algorithms.html
-// - https://www.eclipse.org/elk/reference/options.html
-const elkOptions = {
+const ELK_OPTIONS = {
   "elk.algorithm": "layered",
   "elk.layered.spacing.nodeNodeBetweenLayers": "100",
-  "elk.spacing.nodeNode": "80"
+  "elk.spacing.nodeNode": "40",
+  "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED"
 };
+
+const NODE_DIMENSIONS = { width: 250, height: 50 };
+
+const elk = new ELK();
 
 const getLayoutedElements = (nodes, edges, options = {}) => {
   const isHorizontal = options?.["elk.direction"] === "RIGHT";
@@ -34,67 +33,76 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
     layoutOptions: options,
     children: nodes.map((node) => ({
       ...node,
-      // Adjust the target and source handle positions based on the layout
-      // direction.
       targetPosition: isHorizontal ? "left" : "top",
       sourcePosition: isHorizontal ? "right" : "bottom",
-
-      // Hardcode a width and height for elk to use when layouting.
-      width: 150,
-      height: 50
+      ...NODE_DIMENSIONS
     })),
-    edges: edges
+    edges
   };
-
   return elk
     .layout(graph)
     .then((layoutedGraph) => ({
       nodes: layoutedGraph.children.map((node) => ({
         ...node,
-        // React Flow expects a position property on the node instead of `x`
-        // and `y` fields.
         position: { x: node.x, y: node.y }
       })),
-
-      edges: layoutedGraph.edges
+      edges: layoutedGraph.edges ?? edges
     }))
     .catch(console.error);
 };
-
 export function Flow() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { fitView } = useReactFlow();
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
+  const { fitView } = useReactFlow();
+  const graphStore = useGraphStore();
+  const initialNodes = useMemo(
+    () =>
+      graphStore.nodes!.map((node) => ({
+        id: String(node.id),
+        type: "custom",
+        position: { x: 0, y: 0 },
+        data: { label: node.name, type: node.type }
+      })),
+    [graphStore.nodes]
+  );
+  const initialEdges = useMemo(
+    () =>
+      graphStore.edges!.map((link) => ({
+        id: `${link.sourceId}-${link.targetId}`,
+        type: "smoothstep",
+        source: String(link.sourceId),
+        target: String(link.targetId)
+      })),
+    [graphStore.edges]
+  );
   const onLayout = useCallback(
     ({ direction, useInitialNodes = false }) => {
-      const opts = { "elk.direction": direction, ...elkOptions };
+      const opts = { "elk.direction": direction, ...ELK_OPTIONS };
       const ns = useInitialNodes ? initialNodes : nodes;
       const es = useInitialNodes ? initialEdges : edges;
-
       getLayoutedElements(ns, es, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
-        fitView();
+        fitView({ padding: 0.2 });
       });
     },
     [nodes, edges]
   );
-
-  // Calculate the initial layout on mount.
   useLayoutEffect(() => {
-    onLayout({ direction: "DOWN", useInitialNodes: true });
+    onLayout({ direction: "RIGHT", useInitialNodes: true });
   }, []);
   return (
     <div style={{ width: "calc(100dvw - var(--app-shell-navbar-width))", height: "100dvh" }}>
       <ReactFlow
+        connectionMode={ConnectionMode.Loose}
+        nodesDraggable={false}
+        nodeTypes={nodeTypes}
+        nodesConnectable={false}
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
+        minZoom={0.1}
+        onlyRenderVisibleElements
       >
         <Background />
         <Panel position='top-left'></Panel>

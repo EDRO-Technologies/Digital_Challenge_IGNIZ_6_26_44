@@ -1,6 +1,6 @@
 import { api } from "../instance";
 
-interface IGetNgduListResponse extends IResponse<ICdng[]> {}
+interface IGetNgduListResponse extends IResponse<IBaseObject[]> {}
 
 export interface IGetNgduListParams {
   query: string | null;

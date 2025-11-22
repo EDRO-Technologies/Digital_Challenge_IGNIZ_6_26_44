@@ -1,22 +1,15 @@
-import { AppShell, ScrollArea, Select } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 import { ReactFlowProvider } from "@xyflow/react";
 
-import { Flow } from "./Flow";
+import { Flow } from "./components/Flow";
+import { Navbar } from "./components/Navbar/Navbar";
 
 const NAVBAR_WIDTH = 300;
 
 export function NgduPage() {
   return (
     <AppShell navbar={{ width: NAVBAR_WIDTH, breakpoint: "xs" }}>
-      <AppShell.Navbar>
-        <AppShell.Section>
-          <Select placeholder='Pick value' data={["React", "Angular", "Vue", "Svelte"]} />
-        </AppShell.Section>
-
-        <AppShell.Section></AppShell.Section>
-
-        <AppShell.Section grow component={ScrollArea}></AppShell.Section>
-      </AppShell.Navbar>
+      <Navbar />
 
       <AppShell.Main>
         <ReactFlowProvider>
