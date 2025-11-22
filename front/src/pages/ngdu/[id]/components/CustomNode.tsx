@@ -21,7 +21,7 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
   const [opened, { toggle }] = useDisclosure(false);
 
   return (
-    <Stack className='custom-node'>
+    <Stack className='custom-node nopan nodrag'>
       <Handle type='target' position={Position.Left} />
 
       <Group justify='space-between'>
@@ -36,6 +36,7 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
 
       <Collapse in={opened}>
         Ваши данные:
+        <br />
         {props.data.type}
       </Collapse>
       <Handle type='source' position={Position.Right} />

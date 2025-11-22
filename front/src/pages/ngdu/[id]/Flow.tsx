@@ -20,16 +20,13 @@ import { CustomNode } from "./components/CustomNode";
 
 const elk = new ELK();
 
-// Elk has a *huge* amount of options to configure. To see everything you can
-// tweak check out:
-//
 // - https://www.eclipse.org/elk/reference/algorithms.html
 // - https://www.eclipse.org/elk/reference/options.html
 const elkOptions = {
   "elk.algorithm": "layered",
   "elk.layered.spacing.nodeNodeBetweenLayers": "100",
   "elk.spacing.nodeNode": "20",
-  "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED" // Сбалансированное выравнивание
+  "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED"
 };
 
 const getLayoutedElements = (nodes, edges, options = {}) => {
@@ -45,7 +42,7 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
       sourcePosition: isHorizontal ? "right" : "bottom",
 
       // Hardcode a width and height for elk to use when layouting.
-      width: 150,
+      width: 250,
       height: 50
     })),
     edges: edges
@@ -119,12 +116,13 @@ export function Flow() {
         connectionMode={ConnectionMode.Loose}
         nodesDraggable={false}
         nodeTypes={nodeTypes}
+        nodesConnectable={false}
         nodes={nodes}
         edges={edges}
         minZoom={0.1}
       >
         <Background />
-        <MiniMap />
+        <MiniMap pannable zoomable />
         <Panel position='top-left'></Panel>
       </ReactFlow>
     </div>
