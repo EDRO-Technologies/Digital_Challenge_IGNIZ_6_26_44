@@ -1,10 +1,10 @@
 import { api } from "../instance";
 
-interface IGetNgduListResponse extends ICdng {}
+interface IGetNgduListResponse extends IResponse<ICdng[]> {}
 
 export interface IGetNgduListParams {
-  query: string;
+  query: string | null;
 }
 
 export const getNgduList = async (params: IGetNgduListParams) =>
-  api.get<IGetNgduListResponse[]>("/ngdu/list", { params });
+  api.get<IGetNgduListResponse>("/ngdu/list", { params });

@@ -1,34 +1,20 @@
+import { Badge, Box, Container, Flex, Image, Paper, Stack, Text } from "@mantine/core";
 import { useEffect } from "react";
-import { Link } from "react-router";
-
-import { Box, Container, Flex, Image, Paper, Stack, Text } from "@mantine/core";
+import { Link, generatePath, useSearchParams } from "react-router";
 
 import { Search } from "@/shared/components";
+import { PATHS } from "@/shared/constants";
 
 import styles from "./index.module.css";
 import { useCdngListStore } from "./store/cdng-list";
 
-const data = [
-  { id: 1, name: "НГДУ-1" },
-  { id: 2, name: "НГДУ-2" },
-  { id: 3, name: "НГДУ-3" },
-  { id: 4, name: "НГДУ-4" },
-  { id: 5, name: "НГДУ-5" },
-  { id: 6, name: "НГДУ-6" },
-  { id: 7, name: "НГДУ-7" },
-  { id: 8, name: "НГДУ-8" },
-  { id: 9, name: "НГДУ-9" },
-  { id: 10, name: "НГДУ-10" },
-  { id: 11, name: "НГДУ-11" },
-  { id: 12, name: "НГДУ-12" }
-];
-
 const IndexPage = () => {
+  const [searchParams] = useSearchParams();
   const { cdngList, isLoading, fetchNgduList } = useCdngListStore();
 
   useEffect(() => {
-    fetchNgduList();
-  }, []);
+    fetchNgduList(searchParams);
+  }, [searchParams]);
 
   return (
     <Box className={styles.wrapper}>
@@ -45,13 +31,19 @@ const IndexPage = () => {
               </Text>
             </Paper>
             <Paper component='ul' className={styles.list}>
-              {data.map((item) => (
-                <Box key={item.id} component='li' className={styles.list_item}>
-                  <Link to='/в' className={styles.link}>
-                    {item.name}
-                  </Link>
-                </Box>
-              ))}
+              {!isLoading && cdngList.length !== 0 ? (
+                cdngList?.map((item) => (
+                  <Box key={item.id} component='li' className={styles.list_item}>
+                    <Link to={generatePath(PATHS.NGDU, { id: item.id })} className={styles.link}>
+                      {item.name}
+                    </Link>
+                  </Box>
+                ))
+              ) : (
+                <Flex align='center' justify='center' h='10vh'>
+                  <Badge>Нет данных</Badge>
+                </Flex>
+              )}
             </Paper>
           </Stack>
         </Flex>
