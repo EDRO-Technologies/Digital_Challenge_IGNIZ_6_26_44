@@ -14,6 +14,7 @@ export const Navbar = () => {
       <AppShell.Section px={20} pt={20}>
         <Select
           classNames={{ input: styles.select_input }}
+          chevronColor='white'
           allowDeselect={false}
           value={state.currentTopology}
           data={SELECT_TOPOLOGY_DATA}
