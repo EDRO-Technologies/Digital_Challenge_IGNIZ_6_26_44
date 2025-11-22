@@ -30,27 +30,6 @@ export default {
       password: env.DATABASE_PASSWORD,
       database: env.DATABASE_NAME,
       url: env.DATABASE_URL
-    },
-    redis: {
-      host: env.REDIS_HOST,
-      port: env.REDIS_PORT,
-      password: env.REDIS_PASSWORD
     }
-  },
-  jwt: {
-    access: {
-      secret: env.JWT_ACCESS_SECRET,
-      expiresIn: env.ACCESS_TOKEN_EXPIRES_IN
-    },
-    refresh: {
-      secret: env.JWT_REFRESH_SECRET,
-      expiresIn: env.REFRESH_TOKEN_EXPIRES_IN
-    }
-  },
-  yandexApi: {
-    clientID: env.YANDEX_CLIENT_ID,
-    clientSecret: env.YANDEX_CLIENT_SECRET,
-    tokenUrl: env.YANDEX_BASE_URL,
-    loginUrl: env.YANDEX_LOGIN_URL
   }
 } as const;

@@ -21,36 +21,12 @@ services:
           cpus: "2"
           memory: 1024M
 
-  redis:
-    image: "redis:7-alpine"
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./redis-data:/var/lib/redis
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-      - REDIS_REPLICATION_MODE=master
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    healthcheck:
-      test: [CMD, redis-cli, ping]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: "1"
-          memory: 524M
-
   express-app:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
       db:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     ports:
       - "8000:8000"
@@ -67,27 +43,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_URL: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/${DATABASE_NAME}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      ACCESS_TOKEN_EXPIRES_IN: ${ACCESS_TOKEN_EXPIRES_IN}
-      REFRESH_TOKEN_EXPIRES_IN: ${REFRESH_TOKEN_EXPIRES_IN}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      BUCKET_KEY: ${BUCKET_KEY}
-      BUCKET_SECRET: ${BUCKET_SECRET}
-      BUCKET_ENDPOINT: ${BUCKET_ENDPOINT}
-      BUCKET_NAME: ${BUCKET_NAME}
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_USER: ${MAIL_USER}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      MAIL_FROM: ${MAIL_FROM}
-      MAIL_PORT: ${MAIL_PORT}
-      YANDEX_CLIENT_ID: ${YANDEX_CLIENT_ID}
-      YANDEX_CLIENT_SECRET: ${YANDEX_CLIENT_SECRET}
-      YANDEX_BASE_URL: ${YANDEX_BASE_URL}
-      YANDEX_LOGIN_URL: ${YANDEX_LOGIN_URL}
-    command: sh -c "npm run migrate:prod && npm run start"
+    command: sh -c "npm run migrate:prod && npm run process:files:prod && npm run start"
     deploy:
       resources:
         limits:

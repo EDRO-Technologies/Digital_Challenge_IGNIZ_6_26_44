@@ -8,7 +8,6 @@ import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 
 import config from './config';
-import redisClient from './db/redis';
 import { logger, LoggerStream } from './lib/loger';
 import { sendResponse } from './lib/reponse';
 import router from './modules/main.router';
@@ -70,7 +69,6 @@ export const init = (async () => {
     next();
     sendResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong...');
   });
-  redisClient.connect();
 
   DI.server = app.listen(port, () => logger.info(`listening in port:${port}`));
 })();
