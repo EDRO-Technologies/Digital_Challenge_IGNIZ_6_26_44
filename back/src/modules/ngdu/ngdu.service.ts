@@ -1,10 +1,22 @@
-import { eq, ilike } from 'drizzle-orm';
+import { eq, ilike, sql } from 'drizzle-orm';
 
 import { db } from '@/db/drizzle/connect';
 import { cdng, kust, mest, ngdu, obj, plast, well } from '@/db/drizzle/schema/ngdu/schema';
 
-import type { GetGraphRequest, GetGraphResponse, Links, Node } from './dto/get-graph.dto';
-import type { TTarget } from './types/ngdu.types';
+import type { Links, Node } from './dto/ngdu.types';
+import type {
+  GetGraphRequest,
+  PostIsConnectedRequest,
+  PostObjectExistsRequest,
+  PostObjectNameRequest
+} from './dto/request.dto';
+import type {
+  GetGraphResponse,
+  PostIsConnectedResponse,
+  PostObjectExistsResponse,
+  PostObjectNameResponse
+} from './dto/response.dto';
+import type { TSearchResult, TTarget } from './types/ngdu.types';
 
 export const getNgduList = async (query: string) => {
   try {
@@ -52,17 +64,10 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
 
   const topologyMap = topologyMaps[dto.topology];
 
-  /**
-   * Тип перед well (например kust → well или plast → well)
-   * Чтобы понять, на каком уровне нужно "вывалить список wells"
-   */
   const secondToLastType = (Object.entries(topologyMap).find(([, children]) =>
     children?.some((c) => c.type === 'well')
   )?.[0] ?? null) as TTarget | null;
 
-  /**
-   * Основная рекурсивная функция
-   */
   const loadBranch = async (type: TTarget, id: number) => {
     const key = `${type}_${id}`;
     if (visited.has(key)) return;
@@ -73,15 +78,10 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
     const [record] = await db.select().from(table).where(eq(table.id, id));
     if (!record) return;
 
-    // Добавляем текущий узел
     nodes.push({ id: record.id, name: record.name, type });
 
     const children = topologyMap[type] ?? [];
 
-    /**
-     * Когда дошли до предпоследнего уровня
-     * — выводим все wells, но НЕ продолжаем рекурсию
-     */
     if (type === secondToLastType) {
       for (const child of children) {
         const rows = await db.select().from(child.table).where(eq(child.column, id));
@@ -89,21 +89,16 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
         for (const r of rows) {
           nodes.push({ id: r.id, name: r.name, type: child.type });
 
-          // ВАЖНО: теперь линки тоже добавляем
           links.push({ sourceId: id, targetId: r.id });
         }
       }
       return;
     }
 
-    /**
-     * Обычная рекурсивная работа
-     */
     for (const child of children) {
       const rows = await db.select().from(child.table).where(eq(child.column, id));
 
       for (const r of rows) {
-        // Линки добавляем всегда на каждом уровне
         links.push({ sourceId: id, targetId: r.id });
 
         await loadBranch(child.type as TTarget, r.id);
@@ -114,4 +109,159 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
   await loadBranch(dto.type, dto.id);
 
   return { nodes, links };
+};
+
+export const searchAllTables = async (query: string): Promise<TSearchResult> => {
+  const result: TSearchResult = {
+    ngdu: [],
+    mest: [],
+    cdng: [],
+    obj: [],
+    plast: [],
+    kust: [],
+    well: []
+  };
+
+  if (!query?.trim()) return result;
+
+  const searchTerm = `%${query.trim()}%`;
+
+  const tables: Record<TTarget, any> = { ngdu, mest, cdng, obj, plast, kust, well };
+
+  for (const [type, table] of Object.entries(tables) as [TTarget, any][]) {
+    const rows = await db
+      .select({ id: table.id, name: table.name })
+      .from(table)
+      .where(ilike(table.name, searchTerm));
+
+    if (rows.length) {
+      result[type] = rows.map((r) => ({ id: r.id, name: r.name }));
+    }
+  }
+
+  return result;
+};
+
+export const objectExists = async (
+  dto: PostObjectExistsRequest
+): Promise<PostObjectExistsResponse> => {
+  try {
+    const formattedTableName = sql.identifier(dto.type.toLowerCase());
+
+    const data = await db.execute<{ name: string }>(sql`
+      SELECT * FROM ${formattedTableName}
+      WHERE id = ${dto.id}
+    `);
+    return {
+      exists: data.rowCount > 0
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const objectByName = async (dto: PostObjectNameRequest): Promise<PostObjectNameResponse> => {
+  try {
+    const formattedTableName = sql.identifier(dto.type.toLowerCase());
+
+    const data = await db.execute<{ name: string }>(sql`
+      SELECT name FROM ${formattedTableName}
+      WHERE id = ${dto.id}
+    `);
+
+    if (data.rowCount === 0) {
+      throw new Error(`Object with id ${dto.id} not found in ${formattedTableName}`);
+    }
+
+    return {
+      name: data.rows[0].name
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const isConnected = async (
+  dto: PostIsConnectedRequest
+): Promise<PostIsConnectedResponse> => {
+  try {
+    const normalize = (s: string) => s.toLowerCase() as TTarget;
+
+    const sourceType = normalize(dto.source.type);
+    const targetType = normalize(dto.target.type);
+
+    const tables = { ngdu, mest, cdng, obj, plast, kust, well } as const;
+
+    const edges: Record<TTarget, { table: any; fk: string; type: TTarget }[]> = {
+      ngdu: [
+        { table: mest, fk: 'ngduId', type: 'mest' },
+        { table: cdng, fk: 'ngduId', type: 'cdng' }
+      ],
+      mest: [
+        { table: ngdu, fk: 'id', type: 'ngdu' },
+        { table: obj, fk: 'mestId', type: 'obj' }
+      ],
+      cdng: [
+        { table: ngdu, fk: 'id', type: 'ngdu' },
+        { table: kust, fk: 'cdngId', type: 'kust' }
+      ],
+      obj: [
+        { table: mest, fk: 'id', type: 'mest' },
+        { table: plast, fk: 'objId', type: 'plast' }
+      ],
+      plast: [
+        { table: obj, fk: 'id', type: 'obj' },
+        { table: well, fk: 'plastId', type: 'well' }
+      ],
+      kust: [
+        { table: cdng, fk: 'id', type: 'cdng' },
+        { table: well, fk: 'kustId', type: 'well' }
+      ],
+      well: [
+        { table: kust, fk: 'id', type: 'kust' },
+        { table: plast, fk: 'id', type: 'plast' }
+      ]
+    };
+
+    const queue: { type: TTarget; id: number }[] = [{ type: sourceType, id: dto.source.id }];
+    const visited = new Set<string>();
+
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      const key = `${node.type}_${node.id}`;
+
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      if (node.type === targetType && node.id === dto.target.id) {
+        return { connected: true };
+      }
+
+      for (const edge of edges[node.type]) {
+        const childTable = edge.table;
+
+        if (edge.fk !== 'id') {
+          const rows = await db
+            .select({ id: childTable.id })
+            .from(childTable)
+            .where(eq(childTable[edge.fk], node.id));
+
+          for (const row of rows) {
+            queue.push({ type: edge.type, id: row.id });
+          }
+        } else {
+          const currentTable = tables[node.type] as any;
+          const [rec] = await db.select().from(currentTable).where(eq(currentTable.id, node.id));
+
+          if (rec && rec[`${edge.type}Id`]) {
+            queue.push({ type: edge.type, id: rec[`${edge.type}Id`] });
+          }
+        }
+      }
+    }
+
+    return { connected: false };
+  } catch (error) {
+    throw error;
+  }
 };

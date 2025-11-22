@@ -13,7 +13,7 @@
       "description": "Endpoints for NGDU hierarchical data"
     }
   ],
-  "schemes": ["http"],
+  "schemes": ["http", "https"],
   "paths": {
     "/ngdu/list": {
       "get": {
@@ -37,7 +37,7 @@
                 "message": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/NgduItem"
+                    "$ref": "#/definitions/ObjectsItem"
                   }
                 }
               }
@@ -46,7 +46,36 @@
         }
       }
     },
-
+    "/ngdu/list/tables": {
+      "get": {
+        "tags": ["NGDU"],
+        "summary": "Get list of all variaty of objects",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Objects list retrieved",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": { "type": "number" },
+                "message": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ObjectsItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ngdu/graph": {
       "post": {
         "tags": ["NGDU"],
@@ -77,18 +106,139 @@
           }
         }
       }
+    },
+    "/ngdu/object-exists": {
+      "post": {
+        "tags": ["NGDU"],
+        "summary": "Checks if object exists",
+        "description": "Returns boolean if object exists",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NgduItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Graph generated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": { "type": "number" },
+                "message": {
+                  "type": "object",
+                  "properties": {
+                    "exists": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ngdu/get-object-name": {
+      "post": {
+        "tags": ["NGDU"],
+        "summary": "Checks if object exists",
+        "description": "Returns boolean if object exists",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NgduItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Graph generated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": { "type": "number" },
+                "message": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ngdu/is-connected": {
+      "post": {
+        "tags": ["NGDU"],
+        "summary": "Checks if object exists",
+        "description": "Returns boolean if object exists",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "$ref": "#/definitions/NgduItem"
+                },
+                "target": {
+                  "$ref": "#/definitions/NgduItem"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Graph generated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": { "type": "number" },
+                "message": {
+                  "type": "object",
+                  "properties": {
+                    "connected": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
-
   "definitions": {
-    "NgduItem": {
+    "ObjectsItem": {
       "type": "object",
       "properties": {
         "id": { "type": "number" },
         "name": { "type": "string" }
       }
     },
-
+    "NgduItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "type": { "type": "string" }
+      }
+    },
     "GetGraphRequest": {
       "type": "object",
       "properties": {
