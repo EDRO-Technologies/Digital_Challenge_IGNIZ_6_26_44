@@ -96,7 +96,12 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
     }
 
     for (const child of children) {
-      const rows = await db.select().from(child.table).where(eq(child.column, id));
+      let rows;
+      if (child.type === 'cdng') {
+        rows = await db.select().from(child.table).where(eq(child.column, id)).limit(3);
+      } else {
+        rows = await db.select().from(child.table).where(eq(child.column, id));
+      }
 
       for (const r of rows) {
         links.push({ sourceId: id, targetId: r.id });
