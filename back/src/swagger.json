@@ -46,6 +46,36 @@
         }
       }
     },
+    "/ngdu/list/tables": {
+      "get": {
+        "tags": ["NGDU"],
+        "summary": "Get list of all variaty of objects",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Objects list retrieved",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": { "type": "number" },
+                "message": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/NgduItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/ngdu/graph": {
       "post": {
@@ -88,7 +118,13 @@
         "name": { "type": "string" }
       }
     },
-
+    "ObjectsItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "name": { "type": "string" }
+      }
+    },
     "GetGraphRequest": {
       "type": "object",
       "properties": {

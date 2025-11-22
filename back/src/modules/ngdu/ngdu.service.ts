@@ -1,10 +1,20 @@
-import { eq, ilike } from 'drizzle-orm';
+import { eq, ilike, sql } from 'drizzle-orm';
 
 import { db } from '@/db/drizzle/connect';
 import { cdng, kust, mest, ngdu, obj, plast, well } from '@/db/drizzle/schema/ngdu/schema';
 
-import type { GetGraphRequest, GetGraphResponse, Links, Node } from './dto/get-graph.dto';
-import type { TTarget } from './types/ngdu.types';
+import type { Links, Node } from './dto/ngdu.types';
+import type {
+  GetGraphRequest,
+  PostObjectExistsRequest,
+  PostObjectNameRequest
+} from './dto/request.dto';
+import type {
+  GetGraphResponse,
+  PostObjectExistsResponse,
+  PostObjectNameResponse
+} from './dto/response.dto';
+import type { TSearchResult, TTarget } from './types/ngdu.types';
 
 export const getNgduList = async (query: string) => {
   try {
@@ -99,10 +109,8 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
   return { nodes, links };
 };
 
-type SearchResult = Record<TTarget, { id: number; name: string }[]>;
-
-export const searchAllTables = async (query: string): Promise<SearchResult> => {
-  const result: SearchResult = {
+export const searchAllTables = async (query: string): Promise<TSearchResult> => {
+  const result: TSearchResult = {
     ngdu: [],
     mest: [],
     cdng: [],
@@ -131,3 +139,35 @@ export const searchAllTables = async (query: string): Promise<SearchResult> => {
 
   return result;
 };
+
+export const objectExists = async (
+  dto: PostObjectExistsRequest
+): Promise<PostObjectExistsResponse> => {
+  const formattedTableName = dto.type.toLowerCase();
+
+  const data = await db
+    .select()
+    .from(sql`${formattedTableName}`)
+    .where(sql`${formattedTableName}.id = ${dto.id}`);
+
+  return {
+    exists: data.length > 0
+  };
+};
+
+// export const objectByName = async (dto: PostObjectNameRequest): Promise<PostObjectNameResponse> => {
+//   const formattedTableName = dto.type.toLowerCase();
+
+//   const data = await db
+//     .select({ name: sql<string>`${formattedTableName}.name` })
+//     .from(sql`${formattedTableName}`)
+//     .where(sql`${formattedTableName}.id = ${dto.id}`);
+
+//   if (data.length === 0) {
+//     throw new Error(`Object with id ${dto.id} not found in ${formattedTableName}`);
+//   }
+
+//   return {
+//     name: data[0].name
+//   };
+// };
