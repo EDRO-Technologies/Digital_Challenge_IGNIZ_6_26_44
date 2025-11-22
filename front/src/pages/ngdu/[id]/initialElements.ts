@@ -1,59 +1,63 @@
 const position = { x: 0, y: 0 };
+const type = "collapsable";
 
 export const initialNodes = [
   {
     id: "1",
-    type: "input",
-    data: { label: "input" },
     position
   },
   {
     id: "2",
-    data: { label: "node 2" },
+    type,
     position
   },
   {
     id: "2a",
-    data: { label: "node 2a" },
+    type,
     position
   },
   {
     id: "2b",
-    data: { label: "node 2b" },
+    type,
+
     position
   },
   {
     id: "2c",
-    data: { label: "node 2c" },
+    type,
+
     position
   },
   {
     id: "2d",
-    data: { label: "node 2d" },
+    type,
+
     position
   },
   {
     id: "3",
-    data: { label: "node 3" },
+    type,
+
     position
   },
   {
     id: "4",
-    data: { label: "node 4" },
+    type,
+
     position
   },
   {
     id: "5",
-    data: { label: "node 5" },
+    type,
+
     position
   },
   {
     id: "6",
-    type: "output",
-    data: { label: "output" },
+    type,
     position
   },
-  { id: "7", type: "output", data: { label: "output" }, position }
+  { id: "7", type, position }
 ];
 
 export const initialEdges = [

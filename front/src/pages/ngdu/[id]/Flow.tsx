@@ -2,7 +2,6 @@ import {
   Background,
   Panel,
   ReactFlow,
-  ReactFlowProvider,
   addEdge,
   useEdgesState,
   useNodesState,
@@ -10,9 +9,10 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
-import React, { useCallback, useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect } from "react";
 
-import { initialEdges, initialNodes } from "./initialElements.js";
+import { CollapsableNode } from "./CollapsableNode";
+import { initialEdges, initialNodes } from "./initialElements";
 
 const elk = new ELK();
 
@@ -61,6 +61,10 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
     .catch(console.error);
 };
 
+const nodeTypes = {
+  collapsable: CollapsableNode
+};
+
 export function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -82,13 +86,13 @@ export function Flow() {
     [nodes, edges]
   );
 
-  // Calculate the initial layout on mount.
   useLayoutEffect(() => {
     onLayout({ direction: "DOWN", useInitialNodes: true });
   }, []);
   return (
     <div style={{ width: "calc(100dvw - var(--app-shell-navbar-width))", height: "100dvh" }}>
       <ReactFlow
+        nodeTypes={nodeTypes}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
