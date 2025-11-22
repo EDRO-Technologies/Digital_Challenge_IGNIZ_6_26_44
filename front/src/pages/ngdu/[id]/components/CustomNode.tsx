@@ -1,7 +1,6 @@
 import { ActionIcon, Collapse, Group, Stack, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from "lucide-react";
 
 export type CustomNodeProps = Node<{ label: string; type: IObjectType }, "custom">;
 
@@ -26,15 +25,16 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
 
       <Group justify='space-between'>
         <Tooltip label={OBJECT_TYPE_MAP[props.data.type]}>
-          <InfoIcon />
+          <div className='type-qestion'>?</div>
         </Tooltip>
         <div>{props.data.label}</div>
         <ActionIcon color='dark' variant='transparent' onClick={toggle}>
-          {opened ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          {opened ? "-" : "+"}
         </ActionIcon>
       </Group>
 
       <Collapse in={opened}>
+        <hr />
         Ваши данные:
         <br />
         {props.data.type}

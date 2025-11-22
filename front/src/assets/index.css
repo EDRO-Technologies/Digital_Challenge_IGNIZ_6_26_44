@@ -12,3 +12,18 @@
   padding: 10px;
   background-color: white;
 }
+
+.type-qestion {
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.react-flow__handle.connectionindicator {
+  pointer-events: none !important;
+  cursor: inherit !important;
+}

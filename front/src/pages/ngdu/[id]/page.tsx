@@ -6,7 +6,7 @@ import { useSearchParams } from "react-router";
 import { useGraphStore } from "@/shared/store/graph";
 import { updateSearchParams } from "@/shared/utils";
 
-import { Flow } from "./Flow";
+import { Flow } from "./components/Flow";
 
 const NAVBAR_WIDTH = 300;
 
