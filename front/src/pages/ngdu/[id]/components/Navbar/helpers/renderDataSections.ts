@@ -4,19 +4,20 @@ import { renderList } from "./renderList";
 
 export const renderDataSections = (
   data: IGetNgduListTablesResponse["message"],
-  onClick: (newItem: number) => void
+  onClick: (newItem: IObject) => void,
+  topology: string
 ) => {
   const sections = [];
 
-  if (data.obj && data.obj.length > 0) {
+  if (data.obj && topology !== "organizational" && data.obj.length > 0) {
     sections.push(renderList(data.obj, "ОБЪЕКТЫ", onClick));
   }
 
-  if (data.plast && data.plast.length > 0) {
+  if (data.plast && topology !== "organizational" && data.plast.length > 0) {
     sections.push(renderList(data.plast, "ПЛАСТЫ", onClick));
   }
 
-  if (data.kust && data.kust.length > 0) {
+  if (data.kust && topology !== "geological" && data.kust.length > 0) {
     sections.push(renderList(data.kust, "КУСТЫ", onClick));
   }
 
@@ -28,11 +29,11 @@ export const renderDataSections = (
     sections.push(renderList(data.ngdu, "НГДУ", onClick));
   }
 
-  if (data.mest && data.mest.length > 0) {
+  if (data.mest && topology !== "organizational" && data.mest.length > 0) {
     sections.push(renderList(data.mest, "МЕСТОРОЖДЕНИЯ", onClick));
   }
 
-  if (data.cdng && data.cdng.length > 0) {
+  if (data.cdng && topology !== "geological" && data.cdng.length > 0) {
     sections.push(renderList(data.cdng, "ЦДНГ", onClick));
   }
 

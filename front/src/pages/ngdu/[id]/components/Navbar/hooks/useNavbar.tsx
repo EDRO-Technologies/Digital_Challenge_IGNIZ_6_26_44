@@ -31,8 +31,9 @@ export const useNavbar = () => {
     fetchNgduListTables(debouncedSearchvalue);
   }, [debouncedSearchvalue]);
 
-  const onSelectObject = (newItem: number) => {
-    const newUrl = `${location.origin}/${newItem}${location.search}`;
+  const onSelectObject = (newItem: IObject) => {
+    const newUrl = `${location.origin}/${newItem.id}?topology=${currentTopology}&type=${newItem.type}`;
+
     navigate(newUrl);
   };
 
