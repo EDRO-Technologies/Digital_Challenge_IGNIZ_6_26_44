@@ -97,7 +97,7 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
 
     for (const child of children) {
       let rows;
-      if (child.type === 'cdng') {
+      if (child.type === 'cdng' || child.type === 'mest') {
         rows = await db.select().from(child.table).where(eq(child.column, id)).limit(3);
       } else {
         rows = await db.select().from(child.table).where(eq(child.column, id));
