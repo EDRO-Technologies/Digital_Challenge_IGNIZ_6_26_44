@@ -9,14 +9,14 @@ export const useCdngListStore = create<TCdngListStore>((set) => ({
   cdngList: [],
   isLoading: false,
   setValue: (field, value) => set({ [field]: value }),
-  fetchNgduList: async () => {
+  fetchNgduList: async (searchParams) => {
     set({ isLoading: true });
     try {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParams);
 
-      const { data } = await getNgduList({ query: params.get("search") || "" });
+      const { data } = await getNgduList({ query: params.get("search") });
 
-      set({ cdngList: data });
+      set({ cdngList: data.message });
     } catch (error) {
       handleError(error);
     } finally {
