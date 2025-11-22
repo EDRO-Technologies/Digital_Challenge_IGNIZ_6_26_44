@@ -11,14 +11,15 @@ export default {
     isProduction,
     isLocale,
     port: env.PORT || 8080,
-    productionUrl: env.PRODUCTION_URL || `localhost:${env.PORT}`,
-    rateLimiterSettings: {
-      loginAttempts: +env.LOGIN_RATE_LIMITER_ATTEMPTS,
-      loginTimer: +env.LOGIN_RATE_LIMITER_TIMER_M
-    }
+    productionUrl: env.PRODUCTION_URL || `localhost:${env.PORT}`
   },
   cors: {
-    origin: ['http://localhost:8080', 'http://127.0.0.1:8080', env.CLIENT_BASE_URL],
+    origin: [
+      'http://localhost:8000',
+      'http://127.0.0.1:8000',
+      env.CLIENT_BASE_URL,
+      env.PRODUCTION_URL || `localhost:${env.PORT}`
+    ],
     credentials: true
   } as CorsOptions,
   database: {
@@ -45,19 +46,6 @@ export default {
       secret: env.JWT_REFRESH_SECRET,
       expiresIn: env.REFRESH_TOKEN_EXPIRES_IN
     }
-  },
-  bucket: {
-    key: env.BUCKET_KEY,
-    secret: env.BUCKET_SECRET,
-    name: env.BUCKET_NAME,
-    endpoint: env.BUCKET_ENDPOINT
-  },
-  mail: {
-    host: env.MAIL_HOST,
-    user: env.MAIL_USER,
-    password: env.MAIL_PASSWORD,
-    from: env.MAIL_FROM,
-    port: env.MAIL_PORT
   },
   yandexApi: {
     clientID: env.YANDEX_CLIENT_ID,
