@@ -78,7 +78,7 @@ jobs:
       - name: Copy docker-compose file
         run: |
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
-          ./apps/server/docker-compose.prod.yaml \
+          ./back/docker-compose.prod.yaml \
           ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.PATH_TO_PROJECT }}/docker-compose.yml
 
       - name: Create .env file and set enviroment variables
