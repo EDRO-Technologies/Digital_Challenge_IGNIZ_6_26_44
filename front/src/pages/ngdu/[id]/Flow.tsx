@@ -1,8 +1,9 @@
 import {
   Background,
+  ConnectionMode,
+  MiniMap,
   Panel,
   ReactFlow,
-  addEdge,
   useEdgesState,
   useNodesState,
   useReactFlow
@@ -66,11 +67,10 @@ const nodeTypes = {
 };
 
 export function Flow() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
   const onLayout = useCallback(
     ({ direction, useInitialNodes = false }) => {
       const opts = { "elk.direction": direction, ...elkOptions };
@@ -92,15 +92,15 @@ export function Flow() {
   return (
     <div style={{ width: "calc(100dvw - var(--app-shell-navbar-width))", height: "100dvh" }}>
       <ReactFlow
+        connectionMode={ConnectionMode.Loose}
+        nodesDraggable={false}
         nodeTypes={nodeTypes}
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
         fitView
       >
         <Background />
+        <MiniMap />
         <Panel position='top-left'></Panel>
       </ReactFlow>
     </div>

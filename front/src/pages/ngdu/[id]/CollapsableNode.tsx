@@ -2,7 +2,6 @@ import { ActionIcon, Collapse } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Handle, Position } from "@xyflow/react";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { Fragment } from "react/jsx-runtime";
 
 interface CollapsableNodeProps extends React.ComponentProps<"div"> {
   data: any;

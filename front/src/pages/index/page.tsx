@@ -4,9 +4,9 @@ import { Link, generatePath, useSearchParams } from "react-router";
 
 import { Search } from "@/shared/components";
 import { PATHS } from "@/shared/constants";
+import { useCdngListStore } from "@/shared/store/cdngList";
 
 import styles from "./index.module.css";
-import { useCdngListStore } from "./store/cdng-list";
 
 const IndexPage = () => {
   const [searchParams] = useSearchParams();
@@ -34,7 +34,13 @@ const IndexPage = () => {
               {!isLoading && cdngList.length !== 0 ? (
                 cdngList?.map((item) => (
                   <Box key={item.id} component='li' className={styles.list_item}>
-                    <Link to={generatePath(PATHS.NGDU, { id: item.id })} className={styles.link}>
+                    <Link
+                      to={{
+                        pathname: generatePath(PATHS.NGDU, { id: item.id }),
+                        search: "?topology=organizational&type=cdng"
+                      }}
+                      className={styles.link}
+                    >
                       {item.name}
                     </Link>
                   </Box>

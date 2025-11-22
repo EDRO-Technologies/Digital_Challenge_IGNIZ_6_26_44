@@ -3,7 +3,17 @@ import { create } from "zustand";
 import { getNgduList } from "@/shared/api";
 import { handleError } from "@/shared/utils";
 
-import type { TCdngListStore } from "./types";
+interface ICdngListState {
+  isLoading: boolean;
+  cdngList: IBaseObject[];
+}
+
+interface ICdngListActions {
+  setValue: <T extends keyof ICdngListState>(field: T, value: ICdngListState[T]) => void;
+  fetchNgduList: (searchParams?: URLSearchParams) => void;
+}
+
+export type TCdngListStore = ICdngListState & ICdngListActions;
 
 export const useCdngListStore = create<TCdngListStore>((set) => ({
   cdngList: [],

@@ -10,7 +10,7 @@ export function NgduPage() {
     <AppShell navbar={{ width: NAVBAR_WIDTH, breakpoint: "xs" }}>
       <AppShell.Navbar>
         <AppShell.Section>
-          <Select placeholder='Pick value' data={["React", "Angular", "Vue", "Svelte"]} />
+          <Select data={["React", "Angular", "Vue", "Svelte"]} />
         </AppShell.Section>
 
         <AppShell.Section></AppShell.Section>
