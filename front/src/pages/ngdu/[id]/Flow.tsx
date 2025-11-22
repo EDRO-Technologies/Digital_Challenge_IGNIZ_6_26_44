@@ -1,7 +1,9 @@
 import {
   Background,
   ConnectionMode,
+  type Edge,
   MiniMap,
+  type Node,
   Panel,
   ReactFlow,
   useEdgesState,
@@ -12,8 +14,9 @@ import "@xyflow/react/dist/style.css";
 import ELK from "elkjs/lib/elk.bundled.js";
 import { useCallback, useLayoutEffect } from "react";
 
+import { useGraphStore } from "@/shared/store/graph";
+
 import { CollapsableNode } from "./CollapsableNode";
-import { initialEdges, initialNodes } from "./initialElements";
 
 const elk = new ELK();
 
@@ -71,6 +74,25 @@ export function Flow() {
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
 
+  const graphStore = useGraphStore();
+
+  const initialNodes: Node[] = graphStore.nodes!.map((node) => ({
+    id: String(node.id),
+    data: {
+      label: node.name,
+      type: node.type
+    },
+    position: { x: 0, y: 0 }
+    // type: "collapsable"
+  }));
+
+  const initialEdges: Edge[] = graphStore.edges!.map((link) => ({
+    id: String(`${link.sourceId}-${link.targetId}`),
+    type: "smoothstep",
+    source: String(link.sourceId),
+    target: String(link.targetId)
+  }));
+
   const onLayout = useCallback(
     ({ direction, useInitialNodes = false }) => {
       const opts = { "elk.direction": direction, ...elkOptions };
@@ -89,6 +111,7 @@ export function Flow() {
   useLayoutEffect(() => {
     onLayout({ direction: "DOWN", useInitialNodes: true });
   }, []);
+
   return (
     <div style={{ width: "calc(100dvw - var(--app-shell-navbar-width))", height: "100dvh" }}>
       <ReactFlow

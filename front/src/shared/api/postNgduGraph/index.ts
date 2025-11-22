@@ -3,7 +3,7 @@ import { api } from "../instance";
 interface IPostNgduGraphResponse
   extends IResponse<{
     nodes: INode[];
-    edges: ILink[];
+    links: ILink[];
   }> {}
 
 export interface IPostNgduGraphParams {

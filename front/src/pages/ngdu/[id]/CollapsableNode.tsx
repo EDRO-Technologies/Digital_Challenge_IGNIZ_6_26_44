@@ -3,9 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Handle, Position } from "@xyflow/react";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-interface CollapsableNodeProps extends React.ComponentProps<"div"> {
-  data: any;
-}
+interface CollapsableNodeProps extends React.ComponentProps<"div"> {}
 
 export function CollapsableNode(props: CollapsableNodeProps) {
   const [opened, { toggle }] = useDisclosure(false);

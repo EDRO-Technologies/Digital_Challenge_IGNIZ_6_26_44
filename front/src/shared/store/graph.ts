@@ -33,7 +33,7 @@ export const useGraphStore = create<State & Actions>((set) => {
     fetchGraph: async (params) =>
       withLoading(async () => {
         const res = await postNgduGraph(params);
-        set({ edges: res.data.message.edges, nodes: res.data.message.nodes });
+        set({ edges: res.data.message.links, nodes: res.data.message.nodes });
       })
   };
 });

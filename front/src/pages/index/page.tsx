@@ -6,7 +6,7 @@ import { Search } from "@/shared/components";
 import { PATHS } from "@/shared/constants";
 import { useCdngListStore } from "@/shared/store/cdngList";
 
-import styles from "./index.module.css";
+import styles from "./IndexPage.module.css";
 
 const IndexPage = () => {
   const [searchParams] = useSearchParams();
