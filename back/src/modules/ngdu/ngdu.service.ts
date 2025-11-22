@@ -52,17 +52,10 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
 
   const topologyMap = topologyMaps[dto.topology];
 
-  /**
-   * Тип перед well (например kust → well или plast → well)
-   * Чтобы понять, на каком уровне нужно "вывалить список wells"
-   */
   const secondToLastType = (Object.entries(topologyMap).find(([, children]) =>
     children?.some((c) => c.type === 'well')
   )?.[0] ?? null) as TTarget | null;
 
-  /**
-   * Основная рекурсивная функция
-   */
   const loadBranch = async (type: TTarget, id: number) => {
     const key = `${type}_${id}`;
     if (visited.has(key)) return;
@@ -73,15 +66,10 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
     const [record] = await db.select().from(table).where(eq(table.id, id));
     if (!record) return;
 
-    // Добавляем текущий узел
     nodes.push({ id: record.id, name: record.name, type });
 
     const children = topologyMap[type] ?? [];
 
-    /**
-     * Когда дошли до предпоследнего уровня
-     * — выводим все wells, но НЕ продолжаем рекурсию
-     */
     if (type === secondToLastType) {
       for (const child of children) {
         const rows = await db.select().from(child.table).where(eq(child.column, id));
@@ -89,21 +77,16 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
         for (const r of rows) {
           nodes.push({ id: r.id, name: r.name, type: child.type });
 
-          // ВАЖНО: теперь линки тоже добавляем
           links.push({ sourceId: id, targetId: r.id });
         }
       }
       return;
     }
 
-    /**
-     * Обычная рекурсивная работа
-     */
     for (const child of children) {
       const rows = await db.select().from(child.table).where(eq(child.column, id));
 
       for (const r of rows) {
-        // Линки добавляем всегда на каждом уровне
         links.push({ sourceId: id, targetId: r.id });
 
         await loadBranch(child.type as TTarget, r.id);
@@ -114,4 +97,37 @@ export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphRespon
   await loadBranch(dto.type, dto.id);
 
   return { nodes, links };
+};
+
+type SearchResult = Record<TTarget, { id: number; name: string }[]>;
+
+export const searchAllTables = async (query: string): Promise<SearchResult> => {
+  const result: SearchResult = {
+    ngdu: [],
+    mest: [],
+    cdng: [],
+    obj: [],
+    plast: [],
+    kust: [],
+    well: []
+  };
+
+  if (!query?.trim()) return result;
+
+  const searchTerm = `%${query.trim()}%`;
+
+  const tables: Record<TTarget, any> = { ngdu, mest, cdng, obj, plast, kust, well };
+
+  for (const [type, table] of Object.entries(tables) as [TTarget, any][]) {
+    const rows = await db
+      .select({ id: table.id, name: table.name })
+      .from(table)
+      .where(ilike(table.name, searchTerm));
+
+    if (rows.length) {
+      result[type] = rows.map((r) => ({ id: r.id, name: r.name }));
+    }
+  }
+
+  return result;
 };

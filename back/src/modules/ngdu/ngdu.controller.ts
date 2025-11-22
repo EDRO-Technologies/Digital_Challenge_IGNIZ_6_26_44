@@ -13,7 +13,7 @@ export async function getNgduList(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await ngduService.getNgduList(req.query.query);
+    const result = await ngduService.searchAllTables(req.query.query);
     sendResponse(res, HttpStatus.OK, result);
   } catch (error) {
     next(error);
