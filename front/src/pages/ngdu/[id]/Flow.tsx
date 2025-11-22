@@ -16,7 +16,7 @@ import { useCallback, useLayoutEffect } from "react";
 
 import { useGraphStore } from "@/shared/store/graph";
 
-import { CollapsableNode } from "./CollapsableNode";
+import { CustomNode } from "./components/CustomNode";
 
 const elk = new ELK();
 
@@ -28,7 +28,8 @@ const elk = new ELK();
 const elkOptions = {
   "elk.algorithm": "layered",
   "elk.layered.spacing.nodeNodeBetweenLayers": "100",
-  "elk.spacing.nodeNode": "80"
+  "elk.spacing.nodeNode": "20",
+  "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED" // Сбалансированное выравнивание
 };
 
 const getLayoutedElements = (nodes, edges, options = {}) => {
@@ -66,7 +67,7 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
 };
 
 const nodeTypes = {
-  collapsable: CollapsableNode
+  custom: CustomNode
 };
 
 export function Flow() {
@@ -82,8 +83,8 @@ export function Flow() {
       label: node.name,
       type: node.type
     },
-    position: { x: 0, y: 0 }
-    // type: "collapsable"
+    position: { x: 0, y: 0 },
+    type: "custom"
   }));
 
   const initialEdges: Edge[] = graphStore.edges!.map((link) => ({
@@ -109,7 +110,7 @@ export function Flow() {
   );
 
   useLayoutEffect(() => {
-    onLayout({ direction: "DOWN", useInitialNodes: true });
+    onLayout({ direction: "RIGHT", useInitialNodes: true });
   }, []);
 
   return (
@@ -120,7 +121,7 @@ export function Flow() {
         nodeTypes={nodeTypes}
         nodes={nodes}
         edges={edges}
-        fitView
+        minZoom={0.1}
       >
         <Background />
         <MiniMap />

@@ -37,7 +37,7 @@ const IndexPage = () => {
                     <Link
                       to={{
                         pathname: generatePath(PATHS.NGDU, { id: item.id }),
-                        search: "?topology=organizational&type=cdng"
+                        search: "?topology=organizational&type=ngdu"
                       }}
                       className={styles.link}
                     >

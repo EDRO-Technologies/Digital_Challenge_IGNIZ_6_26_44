@@ -9,7 +9,7 @@ interface IPostNgduGraphResponse
 export interface IPostNgduGraphParams {
   topology: ITopology;
   type: IObjectType;
-  id: number;
+  id: number; // любого объекта
 }
 
 export const postNgduGraph = async (dto: IPostNgduGraphParams) =>
