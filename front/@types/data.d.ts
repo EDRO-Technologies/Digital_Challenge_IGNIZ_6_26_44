@@ -22,3 +22,7 @@ interface IBaseObject {
   id: number;
   name: string;
 }
+
+interface IObject extends IBaseObject {
+  type: string;
+}

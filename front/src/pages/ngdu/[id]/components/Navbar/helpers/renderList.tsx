@@ -3,9 +3,9 @@ import { AppShell, Button, Stack, Text } from "@mantine/core";
 import styles from "../Navbar.module.css";
 
 export const renderList = (
-  items: IBaseObject[],
+  items: IObject[],
   title: string,
-  onClick: (newItem: number) => void
+  onClick: (newItem: IObject) => void
 ) => {
   if (!items || items.length === 0) return null;
 
@@ -19,7 +19,7 @@ export const renderList = (
             variant='white'
             className={styles.navButton}
             fullWidth
-            onClick={() => onClick(item.id)}
+            onClick={() => onClick(item)}
             styles={{
               inner: {
                 justifyContent: "flex-start"

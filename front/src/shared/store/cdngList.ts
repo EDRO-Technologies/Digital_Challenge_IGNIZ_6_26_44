@@ -1,20 +1,12 @@
 import { create } from "zustand";
 
-import { getNgduList, getNgduListTables } from "@/shared/api";
+import { type IGetNgduListTablesResponse, getNgduList, getNgduListTables } from "@/shared/api";
 import { handleError } from "@/shared/utils";
 
 interface ICdngListState {
   isLoading: boolean;
   cdngList: IBaseObject[];
-  cdngListTables?: {
-    ngdu: IBaseObject[];
-    mest: IBaseObject[];
-    cdng: IBaseObject[];
-    obj: IBaseObject[];
-    plast: IBaseObject[];
-    kust: IBaseObject[];
-    well: IBaseObject[];
-  };
+  cdngListTables?: IGetNgduListTablesResponse["message"];
 }
 
 interface ICdngListActions {

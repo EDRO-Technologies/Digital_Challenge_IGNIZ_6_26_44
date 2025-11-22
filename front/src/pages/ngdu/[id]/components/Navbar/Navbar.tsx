@@ -36,7 +36,11 @@ export const Navbar = () => {
       <ScrollArea className={styles.scrollArea}>
         {state.cdngListTables &&
           !state.isLoading &&
-          renderDataSections(state.cdngListTables, functions.onSelectObject)}
+          renderDataSections(
+            state.cdngListTables,
+            functions.onSelectObject,
+            state.currentTopology!
+          )}
         {state.isLoading && (
           <Stack gap={12}>
             {Array.from({ length: 7 }).map((_, index) => (

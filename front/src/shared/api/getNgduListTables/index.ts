@@ -2,13 +2,13 @@ import { api } from "../instance";
 
 export interface IGetNgduListTablesResponse
   extends IResponse<{
-    ngdu: IBaseObject[];
-    mest: IBaseObject[];
-    cdng: IBaseObject[];
-    obj: IBaseObject[];
-    plast: IBaseObject[];
-    kust: IBaseObject[];
-    well: IBaseObject[];
+    ngdu: IObject[];
+    mest: IObject[];
+    cdng: IObject[];
+    obj: IObject[];
+    plast: IObject[];
+    kust: IObject[];
+    well: IObject[];
   }> {}
 
 export interface IGetNgduListTablesParams {
