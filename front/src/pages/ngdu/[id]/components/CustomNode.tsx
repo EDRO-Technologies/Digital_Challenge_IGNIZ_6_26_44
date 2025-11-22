@@ -22,7 +22,7 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
 
   return (
     <Stack className='custom-node'>
-      <Handle type='source' position={Position.Left} />
+      <Handle type='target' position={Position.Left} />
 
       <Group justify='space-between'>
         <Tooltip label={OBJECT_TYPE_MAP[props.data.type]}>
@@ -38,7 +38,7 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
         Ваши данные:
         {props.data.type}
       </Collapse>
-      <Handle type='target' position={Position.Right} />
+      <Handle type='source' position={Position.Right} />
     </Stack>
   );
 }
