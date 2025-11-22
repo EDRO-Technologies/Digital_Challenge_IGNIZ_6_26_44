@@ -132,7 +132,8 @@ export const searchAllTables = async (query: string): Promise<TSearchResult> => 
     const rows = await db
       .select({ id: table.id, name: table.name })
       .from(table)
-      .where(ilike(table.name, searchTerm));
+      .where(ilike(table.name, searchTerm))
+      .limit(10);
 
     if (rows.length) {
       result[type] = rows.map((r) => ({ id: r.id, name: r.name }));
