@@ -141,7 +141,7 @@ export const searchAllTables = async (query: string): Promise<TSearchResult> => 
       .limit(10);
 
     if (rows.length) {
-      result[type] = rows.map((r) => ({ id: r.id, name: r.name }));
+      result[type] = rows.map((r) => ({ id: r.id, name: r.name, type }));
     }
   }
 
