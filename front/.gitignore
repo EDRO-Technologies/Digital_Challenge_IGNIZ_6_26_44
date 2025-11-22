@@ -15,3 +15,4 @@ dist-ssr
 *.sw?
 
 yarn.lock
+pnpm-lock.yaml
