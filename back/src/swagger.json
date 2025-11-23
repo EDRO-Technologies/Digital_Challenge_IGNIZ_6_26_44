@@ -265,6 +265,14 @@
         "links": {
           "type": "array",
           "items": { "$ref": "#/definitions/Links" }
+        },
+        "upperNodes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Node" }
+        },
+        "upperLinks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Links" }
         }
       }
     },
