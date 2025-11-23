@@ -22,7 +22,7 @@ const ELK_OPTIONS = {
   "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED"
 };
 
-const NODE_DIMENSIONS = { width: 250, height: 50 };
+const NODE_DIMENSIONS = { width: 300, height: 50 };
 
 const elk = new ELK();
 

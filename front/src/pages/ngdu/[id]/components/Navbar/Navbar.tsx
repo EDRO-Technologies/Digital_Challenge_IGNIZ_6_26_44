@@ -33,7 +33,7 @@ export const Navbar = () => {
           leftSection={<SearchIcon size={16} />}
         />
       </AppShell.Section>
-      <ScrollArea className={styles.scrollArea}>
+      <AppShell.Section className={styles.scrollArea} component={ScrollArea}>
         {state.cdngListTables &&
           !state.isLoading &&
           renderDataSections(
@@ -48,7 +48,7 @@ export const Navbar = () => {
             ))}
           </Stack>
         )}
-      </ScrollArea>
+      </AppShell.Section>
     </AppShell.Navbar>
   );
 };

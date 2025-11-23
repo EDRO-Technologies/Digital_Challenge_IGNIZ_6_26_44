@@ -1,4 +1,4 @@
-import { ActionIcon, Collapse, Group, Stack, Tooltip } from "@mantine/core";
+import { ActionIcon, Collapse, Group, Stack, Table, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 
@@ -20,7 +20,7 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
   const [opened, { toggle }] = useDisclosure(false);
 
   return (
-    <Stack className='custom-node nopan nodrag'>
+    <Stack className='custom-node'>
       <Handle type='target' position={Position.Left} />
 
       <Group justify='space-between'>
@@ -28,16 +28,31 @@ export function CustomNode(props: NodeProps<CustomNodeProps>) {
           <div className='type-qestion'>?</div>
         </Tooltip>
         <div>{props.data.label}</div>
-        <ActionIcon color='dark' variant='transparent' onClick={toggle}>
+        <ActionIcon variant='default' onClick={toggle}>
           {opened ? "-" : "+"}
         </ActionIcon>
       </Group>
 
       <Collapse in={opened}>
         <hr />
-        Ваши данные:
-        <br />
-        {props.data.type}
+        <Table withColumnBorders>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Параметр</Table.Th>
+              <Table.Th>Значение</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            <Table.Tr>
+              <Table.Td>Тип</Table.Td>
+              <Table.Td>{props.data.type}</Table.Td>
+            </Table.Tr>
+            {/* <Table.Tr>
+              <Table.Td>Тип</Table.Td>
+              <Table.Td>{props.data.type}</Table.Td>
+            </Table.Tr> */}
+          </Table.Tbody>
+        </Table>
       </Collapse>
       <Handle type='source' position={Position.Right} />
     </Stack>
