@@ -39,81 +39,90 @@ export const getNgduList = async (query: string) => {
 };
 
 export const getNgduGraph = async (dto: GetGraphRequest): Promise<GetGraphResponse> => {
-  const nodes: Node[] = [];
-  const links: Links[] = [];
-  const visited = new Set<string>();
+  try {
+    const nodes: Node[] = [];
+    const links: Links[] = [];
+    const visited = new Set<string>();
 
-  const tables = { ngdu, mest, cdng, obj, kust, plast, well } as const;
+    const tables = { ngdu, mest, cdng, obj, kust, plast, well } as const;
 
-  const topologyMaps = {
-    organizational: {
-      ngdu: [{ table: cdng, type: 'cdng', column: cdng.ngduId }],
-      cdng: [{ table: kust, type: 'kust', column: kust.cdngId }],
-      kust: [{ table: well, type: 'well', column: well.kustId }],
-      well: []
-    },
+    const topologyMaps = {
+      organizational: {
+        ngdu: [{ table: cdng, type: 'cdng', column: cdng.ngduId }],
+        cdng: [{ table: kust, type: 'kust', column: kust.cdngId }],
+        kust: [{ table: well, type: 'well', column: well.kustId }],
+        well: []
+      },
 
-    geological: {
-      ngdu: [{ table: mest, type: 'mest', column: mest.ngduId }],
-      mest: [{ table: obj, type: 'obj', column: obj.mestId }],
-      obj: [{ table: plast, type: 'plast', column: plast.objId }],
-      plast: [{ table: well, type: 'well', column: well.plastId }],
-      well: []
-    }
-  } as const;
+      geological: {
+        ngdu: [{ table: mest, type: 'mest', column: mest.ngduId }],
+        mest: [{ table: obj, type: 'obj', column: obj.mestId }],
+        obj: [{ table: plast, type: 'plast', column: plast.objId }],
+        plast: [{ table: well, type: 'well', column: well.plastId }],
+        well: []
+      }
+    } as const;
 
-  const topologyMap = topologyMaps[dto.topology];
+    const topologyMap = topologyMaps[dto.topology];
 
-  const secondToLastType = (Object.entries(topologyMap).find(([, children]) =>
-    children?.some((c) => c.type === 'well')
-  )?.[0] ?? null) as TTarget | null;
+    const secondToLastType = (Object.entries(topologyMap).find(([, children]) =>
+      children?.some((c) => c.type === 'well')
+    )?.[0] ?? null) as TTarget | null;
 
-  const loadBranch = async (type: TTarget, id: number) => {
-    const key = `${type}_${id}`;
-    if (visited.has(key)) return;
-    visited.add(key);
+    const loadBranch = async (type: TTarget, id: number) => {
+      const key = `${type}_${id}`;
+      if (visited.has(key)) return;
+      visited.add(key);
 
-    const table = tables[type] as any;
+      const table = tables[type] as any;
 
-    const [record] = await db.select().from(table).where(eq(table.id, id));
-    if (!record) return;
+      const [record] = await db.select().from(table).where(eq(table.id, id));
+      if (!record) return;
 
-    nodes.push({ id: record.id, name: record.name, type });
+      nodes.push({ id: record.id, name: record.name, type });
 
-    const children = topologyMap[type] ?? [];
+      const children = topologyMap[type] ?? [];
 
-    if (type === secondToLastType) {
+      if (type === secondToLastType) {
+        for (const child of children) {
+          console.log(secondToLastType);
+          const rows = await db.select().from(child.table).where(eq(child.column, id));
+
+          for (const r of rows) {
+            nodes.push({ id: r.id, name: r.name, type: child.type });
+
+            links.push({ sourceId: id, targetId: r.id });
+          }
+        }
+        return;
+      }
+
       for (const child of children) {
-        const rows = await db.select().from(child.table).where(eq(child.column, id));
+        let rows;
+        if (child.type === 'cdng') {
+          rows = await db.select().from(child.table).where(eq(child.column, id)).limit(3);
+        }
+        // else if (child.type === 'well' || child.type === 'obj' || child.type === 'plast') {
+        //   rows = await db.select().from(child.table).where(eq(child.column, id));
+        // }
+        else {
+          rows = await db.select().from(child.table).where(eq(child.column, id));
+        }
 
         for (const r of rows) {
-          nodes.push({ id: r.id, name: r.name, type: child.type });
-
           links.push({ sourceId: id, targetId: r.id });
+
+          await loadBranch(child.type as TTarget, r.id);
         }
       }
-      return;
-    }
+    };
 
-    for (const child of children) {
-      let rows;
-      if (child.type === 'cdng') {
-        rows = await db.select().from(child.table).where(eq(child.column, id)).limit(3);
-      } else {
-        rows = await db.select().from(child.table).where(eq(child.column, id));
-      }
+    await loadBranch(dto.type, dto.id);
 
-      for (const r of rows) {
-        links.push({ sourceId: id, targetId: r.id });
-
-        await loadBranch(child.type as TTarget, r.id);
-      }
-    }
-  };
-
-  await loadBranch(dto.type, dto.id);
-
-  return { nodes, links };
+    return { nodes, links };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const searchAllTables = async (query: string): Promise<TSearchResult> => {
